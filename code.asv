@@ -16,8 +16,11 @@ time = [];
 dir_in = 'GRACE_RL05\';
 %dir_in = 'D:\grace\Data\L2_CSR_RL06\GSM\BA01\';
 C20_dir_in = 'TN-07_C20_SLR.txt';
+axis = zeros(num_file);
+months      = ["Jan","Feb","Mar","Apr","May","Jun","July","Aug","Sept","Oct","Nov","Dec"];
 for ii=1:num_file
     [cs(ii,:,:),cs_sgi(ii,:,:),int_year(ii),int_month(ii),time(ii)] = gmt_readgsm(dir_in,filename_RL05{ii},lmax,'GRACE');
+    axis(ii)        = strcat(months(int_month(ii)),"/",num2str(int_year(ii)));
 end
 %Read and Replace C20
 pause(0.5);
@@ -37,19 +40,20 @@ for i=1:num_file
     cs_tmp(:,:) = cs_res(i,:,:);
     cs_tmp(:,:)=gmt_gc2mc(cs_tmp);
 % Do destriping and get the mass coefficients
-    cs_mss(i,:,:) = gmt_destriping(cs_tmp,destrip_method);
+    cs_mss(i,:,:) = gmt_destriping(cs_tmp,'NONE');
 
 end
 pause(0.5);
 % Gaussian filtering
-cs_fltr=gmt_gaussian_filter(cs_mss,radius_filter);
+cs_fltr=gmt_gaussian_filter(cs_mss,'0');
 pause(0.5);
 %[cs_leakagefree] = gmt_cs2leakagefreecs(cs_replace,'land','NONE',0);
 [grid_data]=gmt_cs2grid(cs_mss,0,1,'NONE');
+pause(0.5);
 [plot_region]=gmt_grid2series(grid_data,lat,lon);
 plot(time,plot_region*100*100,'-');
 xlabel('Year');
-ylabel('Equivalent water height (cm)');
+ylabel('W (cm)');
 title('TWS variations in the N-W India from GRACE');
 
 function    [cs,cs_sigma,int_year,int_month,time] = gmt_readgsm(dir_in,file_name,lmax,type)
@@ -147,8 +151,8 @@ if  strcmp(type,'ICGEM')
     meanday     = round(meanday);
     int_year    = year1;
     int_month   = gmt_get_mon_day(year1,meanday+1);
-%     str_year     = num2str(year1);
-%     str_month   = num2str(month,'%02u');
+    
+
 end
 
 if  strcmp(type,'GRACE')
@@ -196,6 +200,7 @@ if  strcmp(type,'GRACE')
     meanday     = round(meanday);
     int_year    = year1;
     int_month   = gmt_get_mon_day(year1,meanday+1);
+   
 end
 end
 function [cs_replace,tag] = gmt_replace_C20(dir_in,cs,int_year,int_month,num_file)
