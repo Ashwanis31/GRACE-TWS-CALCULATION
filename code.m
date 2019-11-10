@@ -44,7 +44,7 @@ pause(0.5);
 % Gaussian filtering
 cs_fltr=gmt_gaussian_filter(cs_mss,'0');
 pause(0.5);
-%[cs_leakagefree] = gmt_cs2leakagefreecs(cs_replace,'land','NONE',0);
+%[cs_mss] = gmt_cs2leakagefreecs(cs_fltr,'land','NONE',0);
 [grid_data]=gmt_cs2grid(cs_mss,0,1,'NONE');
 pause(0.5);
 [plot_region]=gmt_grid2series(grid_data,lat,lon);
